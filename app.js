@@ -24,8 +24,6 @@ app.use(cors());
 
 app.use('/auth', authRoutes);
 
-app.use(authenticateUser);
-
 app.get('/', (req, res) => {
   res.send('Welcome to the task management system!');
 });
@@ -38,6 +36,8 @@ app.get('/tasks', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+app.use(authenticateUser);
 
 app.post('/tasks', async (req, res) => {
   const task = new Task({
