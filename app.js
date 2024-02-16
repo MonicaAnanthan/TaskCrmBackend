@@ -3,15 +3,28 @@ const dotenv = require("dotenv");
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const Task = require('./Model/taskModel');
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+
+const { authenticateUser } = require('./middleware/authMiddleware');
+const User = require('./Model/userModel');
+const authRoutes = require('./routes/authRoutes');
 
 dotenv.config();
 require('./Database/dbCongfig');
+
+const secretKey = crypto.randomBytes(32).toString('hex');
+console.log('Generated Secret Key:', secretKey);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 app.use(cors());
+
+app.use('/auth', authRoutes);
+
+app.use(authenticateUser);
 
 app.get('/', (req, res) => {
   res.send('Welcome to the task management system!');
