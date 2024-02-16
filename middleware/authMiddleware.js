@@ -3,7 +3,12 @@ require('dotenv').config();
 
 const authenticateUser = (req, res, next) => {
 
-  if (req.path === '/' || req.path.startsWith('/auth')) {
+  // if (req.path === '/' || req.path.startsWith('/auth')) {
+  //   return next();
+  // }
+  const excludedRoutes = ['/', '/auth/signup', '/auth/login'];
+
+  if (excludedRoutes.includes(req.path)) {
     return next();
   }
   
