@@ -82,6 +82,12 @@ app.post('/login', async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    console.log("password :", password);
+    console.log("user.password :", user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: 'Invalid password' });
+    }
     const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET);
     res.status(200).json({ message: 'Login successful', token });
   } catch (error) {
