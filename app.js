@@ -5,15 +5,13 @@ const cors = require('cors');
 const Task = require('./Model/taskModel');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-
-const { authenticateUser } = require('./middleware/authMiddleware');
+const bcrypt = require('bcryptjs');
 const User = require('./Model/userModel');
-const authRoutes = require('./routes/authRoutes');
 
 dotenv.config();
 require('./Database/dbCongfig');
 
-const secretKey = crypto.randomBytes(32).toString('hex');
+const secretKey = process.env.JWT_SECRET;
 console.log('Generated Secret Key:', secretKey);
 
 const app = express();
@@ -22,10 +20,34 @@ const PORT = process.env.PORT || 5000;
 app.use(bodyParser.json());
 app.use(cors());
 
-app.use('/auth', authRoutes);
 
 app.get('/', (req, res) => {
   res.send('Welcome to the task management system!');
+});
+
+app.post('/signup', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await User.create({ email, password: hashedPassword });
+    res.status(201).json({ message: 'User created successfully', user: newUser });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to create user', error: error.message });
+  }
+});
+
+app.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET);
+    res.status(200).json({ message: 'Login successful', token });
+  } catch (error) {
+    res.status(500).json({ message: 'Login failed', error: error.message });
+  }
 });
 
 app.get('/tasks', async (req, res) => {
@@ -36,8 +58,6 @@ app.get('/tasks', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
-app.use(authenticateUser);
 
 app.post('/tasks', async (req, res) => {
   const task = new Task({
