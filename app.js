@@ -20,6 +20,45 @@ const PORT = process.env.PORT || 5000;
 app.use(bodyParser.json());
 app.use(cors());
 
+app.get('/signup', (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <title>Signup Page</title>
+      </head>
+      <body>
+        <h1>Signup</h1>
+        <form action="/signup" method="post">
+          <label>Email:</label>
+          <input type="email" name="email" required><br>
+          <label>Password:</label>
+          <input type="password" name="password" required><br>
+          <button type="submit">Signup</button>
+        </form>
+      </body>
+    </html>
+  `);
+});
+
+app.get('/login', (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <title>Login Page</title>
+      </head>
+      <body>
+        <h1>Login</h1>
+        <form action="/login" method="post">
+          <label>Email:</label>
+          <input type="email" name="email" required><br>
+          <label>Password:</label>
+          <input type="password" name="password" required><br>
+          <button type="submit">Login</button>
+        </form>
+      </body>
+    </html>
+  `);
+});
 
 app.get('/', (req, res) => {
   res.send('Welcome to the task management system!');
